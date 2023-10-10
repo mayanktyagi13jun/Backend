@@ -20,9 +20,18 @@ const UserSchema = new schema({
         required: true
     },
 
-    Age: {
+    age: {
         type: Number,
-    } 
+    },
+
+    firstname: {
+        type: String,
+        required: true
+    },
+    lastname: {
+        type: String,
+        required: true
+    }
 },
 {
     toJSON: {
