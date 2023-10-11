@@ -1,5 +1,5 @@
 const UserRepository = require("../database/repository/user-repository");
-const { generateHash, isPasswordValid } = require("../utils");
+const { generateHash, isPasswordValid, generateToken } = require("../utils");
 
 // All Business logic will be here
 
@@ -40,7 +40,13 @@ class userServices {
       if (user) {
         const match = await isPasswordValid(password, user.password);
         if (match) {
-          return user;
+          const accessToken = generateToken({ email: user.email }, "Access");
+          console.log("here is accessToken", accessToken);
+
+          // refresh token 
+          const refreshToken = generateToken({ email: user.email }, "Refresh");
+          console.log("here is refreshToken", refreshToken);
+          return accessToken;
         }
       }
     } catch (err) {

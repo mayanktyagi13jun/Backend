@@ -17,12 +17,18 @@ module.exports.isPasswordValid = async (password, hash) => {
   }
 };
 
-module.exports.generateToken = async (payload) => {
-    try {
-        return jwt.sign(payload, process.env.JWT_SECRET_KEY, {
-            expiresIn: process.env.JWT_EXPIRES_IN,
-        });
-    }catch (error) {
-        throw new Error("Unable to generate token");
+module.exports.generateToken = async (payload, type) => {
+  try {
+    if (type === "Access") {
+      return jwt.sign(payload, process.env.APP_SECRET, {
+        expiresIn: process.env.JWT_EXPIRES_IN_Access,
+      });
+    } else {
+      return jwt.sign(payload, process.env.APP_SECRET, {
+        expiresIn: process.env.JWT_EXPIRES_IN_Refresh,
+      });
     }
-}
+  } catch (error) {
+    throw new Error("Unable to generate token");
+  }
+};

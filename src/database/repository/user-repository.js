@@ -26,7 +26,13 @@ class UserRepository {
   async findUserByEmail({ email }) {
     try {
       const existingUser = await UserModel.findOne({ email: email });
-      return existingUser;
+      if(existingUser) {
+        return existingUser;
+      }else {
+        throw new Error("User not found");
+      }
+      //console.log("here is existingUser verification", existingUser);
+      
     } catch (err) {
       throw new Error("Unable to find user");
     }
