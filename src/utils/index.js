@@ -32,3 +32,4 @@ module.exports.generateToken = async (payload, type) => {
     throw new Error("Unable to generate token");
   }
 };
+

@@ -1,5 +1,6 @@
 const UserRepository = require("../database/repository/user-repository");
 const { generateHash, isPasswordValid, generateToken } = require("../utils");
+const AppError = require('../utils/appError');
 
 // All Business logic will be here
 
@@ -24,9 +25,9 @@ class userServices {
 
       console.log("here is createdUser", createdUser);
 
-      return createdUser;
+      return createdUser; 
     } catch (err) {
-      throw new Error("Data Not found", err);
+      throw new AppError(err, 400);
     }
   }
 
@@ -40,15 +41,36 @@ class userServices {
       if (user) {
         const match = await isPasswordValid(password, user.password);
         if (match) {
-          const accessToken = generateToken({ email: user.email }, "Access");
-          console.log("here is accessToken", accessToken);
+          // access token
+          const accessToken = await generateToken(
+            { email: user.email },
+            "Access"
+          );
 
-          // refresh token 
-          const refreshToken = generateToken({ email: user.email }, "Refresh");
-          console.log("here is refreshToken", refreshToken);
-          return accessToken;
+          // refresh token
+          const refreshToken = await generateToken(
+            { email: user.email },
+            "Refresh"
+          );
+
+          // save refresh token in database
+          await this.repository.updateRefreshToken(user, refreshToken);
+          // user.refreshToken.push(refreshToken);
+          // await user.save();
+
+          return refreshToken;
         }
       }
+    } catch (err) {
+      throw new Error("Data Not found", err);
+    }
+  }
+
+  async findUserViaToken(refreshToken) {
+    try {
+      const user = await this.repository.findUserBytoken(refreshToken);
+
+      return user;
     } catch (err) {
       throw new Error("Data Not found", err);
     }

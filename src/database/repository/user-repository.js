@@ -1,5 +1,7 @@
 const { UserModel } = require("../models");
 const { findOne } = require("../models/User");
+const AppError = require('../../utils/appError');
+
 
 //Dealing with data base operations
 
@@ -19,20 +21,45 @@ class UserRepository {
       console.log("here is userResult", userResult);
       return userResult;
     } catch (err) {
-      throw new Error("Unable to create user");
+      throw new AppError(err, 400);
     }
   }
 
   async findUserByEmail({ email }) {
     try {
-      const existingUser = await UserModel.findOne({ email: email });
-      if(existingUser) {
+      var existingUser = await UserModel.findOne({ email: email });
+
+      if (existingUser) {
         return existingUser;
-      }else {
+      } else {
         throw new Error("User not found");
       }
-      //console.log("here is existingUser verification", existingUser);
-      
+    } catch (err) {
+      throw new Error("Unable to find user");
+    }
+  }
+
+  async updateRefreshToken(user, refreshToken) {
+    try {
+      user.refreshToken = user.refreshToken.filter(
+        (t) => t.token !== refreshToken.token
+      );
+      user.refreshToken.push(refreshToken);
+      await user.save();
+    } catch (error) {
+      throw new Error("Unable to update refresh token");
+    }
+  }
+
+  async findUserBytoken(refreshToken) {
+    try {
+      var existingUser = await UserModel.findOne({ refreshToken });
+
+      if (existingUser) {
+        return existingUser;
+      } else {
+        throw new Error("User not found");
+      }
     } catch (err) {
       throw new Error("Unable to find user");
     }
